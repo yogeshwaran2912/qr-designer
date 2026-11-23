@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR ART STUDIO – Transform Images into Scannable QR Artwork</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <!-- Background Glow FX -->
+  <div class="ambient-glow glow-1"></div>
+  <div class="ambient-glow glow-2"></div>
+  <div class="ambient-glow glow-3"></div>
+
+  <!-- Navigation / Header -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+            <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+            <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
+            <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+            <path d="M7 7h.01M17 7h.01M7 17h.01M17 17h.01" stroke-width="3" stroke-linecap="round"></path>
+          </svg>
+        </div>
+        <div>
+          <h1 class="brand-title">QR ART <span class="gradient-text">STUDIO</span></h1>
+          <p class="brand-subtitle">Transform Images into Scannable QR Artwork</p>
+        </div>
+      </div>
+
+      <div class="header-badges">
+        <div class="badge status-pill">
+          <span class="status-dot green-pulse"></span>
+          <span>ZXing-CPP & OpenCV Active</span>
+        </div>
+        <div class="badge ecc-pill">
+          <span>Level H (30% ECC)</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Studio Workspace -->
+  <main class="studio-container">
+    <div class="studio-grid">
+
+      <!-- LEFT COLUMN: STUDIO CONTROLS -->
+      <section class="panel glass-card studio-controls">
+
+        <!-- STEP 1: IMAGE INPUT -->
+        <div class="section-group">
+          <div class="section-title">
+            <span class="step-num">1</span>
+            <h3>Image Input</h3>
+          </div>
+
+          <!-- Dropzone -->
+          <div class="dropzone" id="dropzone">
+            <input type="file" id="fileInput" accept=".png,.jpg,.jpeg,.webp" hidden>
+            <div class="dropzone-content">
+              <div class="dropzone-icon">
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="17 8 12 3 7 8"></polyline>
+                  <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+              </div>
+              <p class="dropzone-title">Drop your image here or <span class="browse-link">Browse</span></p>
+              <p class="dropzone-hint">PNG, JPG, JPEG, WEBP (Up to 25MB)</p>
+            </div>
+          </div>
+
+          <!-- Input Folder Auto-Load / Presets -->
+          <div class="input-presets-section">
+            <div class="presets-header">
+              <span class="sublabel">Available in <code class="dir-code">input/</code> folder:</span>
+              <button class="btn-refresh" id="refreshInputsBtn" title="Refresh input folder">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M23 4v6h-6"></path><path d="M1 20v-6h6"></path>
+                  <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                </svg>
+              </button>
+            </div>
+            <div class="input-chips-list" id="inputChipsList">
+              <!-- Dynamically populated -->
+              <div class="loading-chips">Scanning input folder...</div>
+            </div>
+          </div>
+
+          <!-- Selected Image Card -->
+          <div class="selected-image-card" id="selectedImageCard" style="display: none;">
+            <img id="selectedImageThumb" src="" alt="Selected Preview">
+            <div class="selected-image-info">
+              <span class="selected-name" id="selectedImageName">-</span>
+              <span class="selected-meta" id="selectedImageMeta">-</span>
+            </div>
+            <span class="badge selected-badge">Loaded</span>
+          </div>
+        </div>
+
+        <!-- STEP 2: URL INPUT -->
+        <div class="section-group">
+          <div class="section-title">
+            <span class="step-num">2</span>
+            <h3>Website URL</h3>
+          </div>
+
+          <div class="url-input-wrapper">
+            <div class="url-input-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="2" y1="12" x2="22" y2="12"></line>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+              </svg>
+            </div>
+            <input type="url" id="urlInput" placeholder="https://www.google.com" value="https://www.google.com">
+            <span class="url-validation-icon" id="urlValidationIcon" title="URL is valid">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </span>
+          </div>
+
+          <!-- Preset URL Chips -->
+          <div class="url-presets">
+            <span class="preset-label">Quick URLs:</span>
+            <button type="button" class="url-chip" data-url="https://www.google.com">Google</button>
+            <button type="button" class="url-chip" data-url="https://github.com">GitHub</button>
+            <button type="button" class="url-chip" data-url="https://en.wikipedia.org/wiki/QR_code">Wikipedia</button>
+            <button type="button" class="url-chip" data-url="https://deepmind.google">DeepMind</button>
+          </div>
+        </div>
+
+        <!-- STEP 3: ARTISTIC STYLES -->
+        <div class="section-group">
+          <div class="section-title">
+            <span class="step-num">3</span>
+            <h3>Artistic Integration Style</h3>
+          </div>
+
+          <div class="style-cards-grid" id="styleCardsGrid">
+            <!-- 1. Classic Artistic QR -->
+            <label class="style-card" data-style="classic">
+              <input type="radio" name="styleChoice" value="classic">
+              <div class="style-card-body">
+                <div class="style-icon">🏛️</div>
+                <div class="style-details">
+                  <h4>Classic Artistic QR</h4>
+                  <p>Crisp finder eyes with balanced color integration.</p>
+                </div>
+              </div>
+            </label>
+
+            <!-- 2. Image-Blended QR -->
+            <label class="style-card" data-style="image_blended">
+              <input type="radio" name="styleChoice" value="image_blended">
+              <div class="style-card-body">
+                <div class="style-icon">🎨</div>
+                <div class="style-details">
+                  <h4>Image-Blended QR</h4>
+                  <p>Luminance-aware soft fusion preserving natural lighting.</p>
+                </div>
+              </div>
+            </label>
+
+            <!-- 3. Dark Module Overlay -->
+            <label class="style-card" data-style="dark_overlay">
+              <input type="radio" name="styleChoice" value="dark_overlay">
+              <div class="style-card-body">
+                <div class="style-icon">🌑</div>
+                <div class="style-details">
+                  <h4>Dark Module Overlay</h4>
+                  <p>Deep obsidian modules framing the illustration.</p>
+                </div>
+              </div>
+            </label>
+
+            <!-- 4. Transparent QR Artwork -->
+            <label class="style-card" data-style="transparent">
+              <input type="radio" name="styleChoice" value="transparent">
+              <div class="style-card-body">
+                <div class="style-icon">✨</div>
+                <div class="style-details">
+                  <h4>Transparent QR Artwork</h4>
+                  <p>Maximum illustration visibility with core lock dots.</p>
+                </div>
+              </div>
+            </label>
+
+            <!-- 5. High-Contrast QR -->
+            <label class="style-card" data-style="high_contrast">
+              <input type="radio" name="styleChoice" value="high_contrast">
+              <div class="style-card-body">
+                <div class="style-icon">⚡</div>
+                <div class="style-details">
+                  <h4>High-Contrast QR</h4>
+                  <p>Deep shadows & boosted highlights for long-distance scans.</p>
+                </div>
+              </div>
+            </label>
+
+            <!-- 6. Creative Fantasy QR -->
+            <label class="style-card active" data-style="fantasy">
+              <input type="radio" name="styleChoice" value="fantasy" checked>
+              <div class="style-card-body">
+                <div class="style-icon">🏰</div>
+                <div class="style-details">
+                  <h4>Creative Fantasy QR</h4>
+                  <p>Enchanted castle aesthetic with masonry rhythm.</p>
+                </div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- STEP 4: FINE-TUNING CONTROLS -->
+        <div class="section-group">
+          <div class="collapsible-header" id="fineTuningToggle">
+            <div class="section-title">
+              <span class="step-num">4</span>
+              <h3>Fine-Tuning Adjustments</h3>
+            </div>
+            <span class="toggle-icon">▼</span>
+          </div>
+
+          <div class="collapsible-body" id="fineTuningBody">
+            <!-- Opacity Slider -->
+            <div class="control-row">
+              <div class="control-label-row">
+                <label for="opacitySlider">QR Opacity / Strength</label>
+                <span class="slider-val" id="opacityVal">85%</span>
+              </div>
+              <input type="range" id="opacitySlider" min="0.50" max="1.0" step="0.05" value="0.85">
+            </div>
+
+            <!-- Contrast Slider -->
+            <div class="control-row">
+              <div class="control-label-row">
+                <label for="contrastSlider">Image Contrast Boost</label>
+                <span class="slider-val" id="contrastVal">1.15x</span>
+              </div>
+              <input type="range" id="contrastSlider" min="0.7" max="2.2" step="0.05" value="1.15">
+            </div>
+
+            <!-- Brightness Slider -->
+            <div class="control-row">
+              <div class="control-label-row">
+                <label for="brightnessSlider">Brightness Balance</label>
+                <span class="slider-val" id="brightnessVal">1.05x</span>
+              </div>
+              <input type="range" id="brightnessSlider" min="0.7" max="1.6" step="0.05" value="1.05">
+            </div>
+
+            <!-- Module Color Tint -->
+            <div class="control-row">
+              <label>Module Color / Tint</label>
+              <div class="color-picker-row">
+                <input type="color" id="moduleColorPicker" value="#0f172a">
+                <div class="color-swatches">
+                  <button type="button" class="swatch-btn" data-color="#0f172a" style="background: #0f172a;" title="Deep Obsidian"></button>
+                  <button type="button" class="swatch-btn" data-color="#1e1b4b" style="background: #1e1b4b;" title="Midnight Indigo"></button>
+                  <button type="button" class="swatch-btn" data-color="#3b0764" style="background: #3b0764;" title="Royal Purple"></button>
+                  <button type="button" class="swatch-btn" data-color="#042f2e" style="background: #042f2e;" title="Enchanted Emerald"></button>
+                  <button type="button" class="swatch-btn" data-color="#1c1917" style="background: #1c1917;" title="Charcoal Stone"></button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Error Correction Level -->
+            <div class="control-row">
+              <label for="eccSelect">Error Correction Level (ECC)</label>
+              <select id="eccSelect" class="styled-select">
+                <option value="H" selected>Level H (Recommended for Art – 30% recovery)</option>
+                <option value="Q">Level Q (High – 25% recovery)</option>
+                <option value="M">Level M (Standard – 15% recovery)</option>
+                <option value="L">Level L (Low – 7% recovery)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- GENERATE CTA BUTTON -->
+        <button type="button" class="btn-primary-generate" id="generateBtn">
+          <span class="btn-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path>
+            </svg>
+          </span>
+          <span class="btn-text">Generate Artistic QR Artwork</span>
+          <div class="spinner" id="btnSpinner" style="display: none;"></div>
+        </button>
+
+      </section>
+
+      <!-- RIGHT COLUMN: ARTWORK INSPECTION & VALIDATION -->
+      <section class="panel glass-card studio-preview">
+
+        <!-- VALIDATION BANNER -->
+        <div class="validation-banner" id="validationBanner">
+          <div class="validation-status-box">
+            <div class="status-indicator-badge success" id="statusBadge">
+              <span class="status-icon-check">✓</span>
+              <span class="status-text" id="statusText">QR Validation: SUCCESS</span>
+            </div>
+            <div class="engine-badge" id="engineBadge">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+              </svg>
+              <span id="engineText">ZXing-CPP Engine Verified</span>
+            </div>
+          </div>
+
+          <!-- Decoded URL display -->
+          <div class="decoded-url-box">
+            <span class="decoded-label">Decoded URL:</span>
+            <a href="https://www.google.com" target="_blank" rel="noopener noreferrer" class="decoded-link" id="decodedUrlLink">https://www.google.com</a>
+            <button type="button" class="btn-copy-url" id="copyUrlBtn" title="Copy URL to Clipboard">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- ARTWORK COMPARISON STAGE -->
+        <div class="artwork-stage">
+          <div class="stage-toolbar">
+            <div class="view-toggles">
+              <button type="button" class="view-btn active" data-view="compare" id="viewCompareBtn">Split Comparison</button>
+              <button type="button" class="view-btn" data-view="result" id="viewResultBtn">QR Artwork</button>
+              <button type="button" class="view-btn" data-view="original" id="viewOriginalBtn">Original Image</button>
+            </div>
+            <div class="stage-meta" id="stageMeta">
+              <span>Ready</span>
+            </div>
+          </div>
+
+          <!-- BEFORE / AFTER COMPARISON CONTAINER -->
+          <div class="comparison-container" id="comparisonContainer">
+            <!-- Background Image (Generated QR) -->
+            <img class="compare-img qr-img" id="resultImage" src="/api/file/output/generated_qr.png" alt="Generated Artistic QR">
+
+            <!-- Foreground Overlaid Image (Original) -->
+            <div class="compare-overlay" id="compareOverlay">
+              <img class="compare-img orig-img" id="originalImage" src="/api/file/input/house1.png" alt="Original Artwork">
+            </div>
+
+            <!-- Draggable Split Divider Handle -->
+            <div class="compare-handle" id="compareHandle">
+              <div class="handle-line"></div>
+              <div class="handle-circle">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </div>
+            </div>
+
+            <!-- Floating Labels -->
+            <div class="compare-label label-left">Original</div>
+            <div class="compare-label label-right">Artistic QR</div>
+          </div>
+        </div>
+
+        <!-- EXPORT & DOWNLOAD ACTIONS -->
+        <div class="export-actions-bar">
+          <div class="export-left">
+            <span class="save-path-notice">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="2">
+                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+              </svg>
+              Saved in: <code>output/generated_qr.png</code>
+            </span>
+          </div>
+          <div class="export-buttons">
+            <a href="/api/download/generated_qr.png" id="downloadPngBtn" class="btn-download primary" download>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              <span>Download PNG (Lossless)</span>
+            </a>
+            <a href="/api/download/generated_qr.jpg" id="downloadJpgBtn" class="btn-download secondary" download>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              <span>Download JPG</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- COMPUTER VISION IMAGE ANALYSIS DECK -->
+        <div class="cv-analysis-deck">
+          <div class="cv-deck-header">
+            <div class="cv-title">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#a855f7" stroke-width="2">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+              </svg>
+              <h4>Computer Vision Image Analysis</h4>
+            </div>
+            <div class="cv-tabs">
+              <button type="button" class="cv-tab-btn active" data-tab="metrics">Metrics & Palette</button>
+              <button type="button" class="cv-tab-btn" data-tab="heatmap">Luminance Heatmap</button>
+              <button type="button" class="cv-tab-btn" data-tab="edges">Edge Complexity</button>
+            </div>
+          </div>
+
+          <!-- Tab 1: Metrics & Palette -->
+          <div class="cv-tab-content active" id="tabMetrics">
+            <div class="metrics-grid">
+              <div class="metric-card">
+                <span class="m-label">Dimensions</span>
+                <span class="m-val" id="metricDimensions">1024 × 1024</span>
+              </div>
+              <div class="metric-card">
+                <span class="m-label">Mean Luminance</span>
+                <span class="m-val" id="metricLuminance">117.4 / 255</span>
+              </div>
+              <div class="metric-card">
+                <span class="m-label">RMS Contrast</span>
+                <span class="m-val" id="metricContrast">70.3</span>
+              </div>
+              <div class="metric-card">
+                <span class="m-label">Edge Density</span>
+                <span class="m-val" id="metricEdges">12.8%</span>
+              </div>
+            </div>
+
+            <!-- Color Palette Bar -->
+            <div class="palette-container">
+              <span class="palette-label">Dominant Color Palette (Click to tint modules):</span>
+              <div class="palette-chips" id="paletteChips">
+                <!-- Dynamically populated -->
+              </div>
+            </div>
+
+            <div class="recommendation-notice" id="recommendationNotice">
+              <span class="rec-icon">💡</span>
+              <span class="rec-text" id="recommendationText">Recommended Style: Creative Fantasy QR for optimal contrast & illustration harmony.</span>
+            </div>
+          </div>
+
+          <!-- Tab 2: Luminance Heatmap -->
+          <div class="cv-tab-content" id="tabHeatmap">
+            <div class="map-view">
+              <img id="heatmapImg" src="/api/file/output/analysis_heatmap.png" alt="Luminance Heatmap">
+              <div class="map-caption">OpenCV Magma Heatmap: Visualizes luminous areas (yellow/white) versus dark density (purple/black).</div>
+            </div>
+          </div>
+
+          <!-- Tab 3: Edge Complexity -->
+          <div class="cv-tab-content" id="tabEdges">
+            <div class="map-view">
+              <img id="edgeImg" src="/api/file/output/analysis_edges.png" alt="Edge Complexity Map">
+              <div class="map-caption">Canny Edge Density: Reveals fine architectural contours and structural lines.</div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Notification Toast -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
